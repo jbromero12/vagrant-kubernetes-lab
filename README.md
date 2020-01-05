@@ -10,7 +10,7 @@ Vagrant was chosen for being able to create the cluster either on linux, windows
 ## Default provisioning
 Vagrant up will provide 2 Ubuntu Xenial VMs for a kubernetes cluster with these features by default :
 - Kubernetes control plane (latest)
-- Weave network cni (latest)
+- Flannel (latest)
 - Kubernetes Dashboard (latest)
 - Heapster v1.5.1
 - Helm (latest)
@@ -18,9 +18,9 @@ Vagrant up will provide 2 Ubuntu Xenial VMs for a kubernetes cluster with these 
 ## Options
 
 ### network
-By default, we will use the Weave-Net driver but you can override it with flannel like this:
+By default, we will use the Flannel driver but you can override it with flannel like this:
 ```
- vagrant --network=flannel up
+ vagrant  up
 ```
 
 ### mount
@@ -52,8 +52,9 @@ kubectl get nodes
 And you should see:
 ```
 NAME        STATUS    ROLES     AGE       VERSION
-k8smaster   Ready     master    10m       v1.9.0
-k8sworker   Ready     <none>    5m        v1.9.0
+k8smaster   Ready     master    10m       v1.15.6
+k8sworker1  Ready     <none>    5m        v1.15.6
+k8sworker2   Ready     <none>    5m       v1.15.6
 ```
 
 ## Extra features 
