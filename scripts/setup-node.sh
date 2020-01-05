@@ -39,6 +39,29 @@ apt-get install -y kubectl$KUBE_APT_VERSION
 apt-get install -y kubernetes-cni
 apt-get install -y nfs-common
 
+# Setup daemon.
+cat > /etc/docker/daemon.json <<EOF
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2"
+}
+EOF
+
+mkdir -p /etc/systemd/system/docker.service.d
+
+# Restart docker.
+systemctl daemon-reload
+systemctl enable docker
+systemctl start docker
+
+##swapoff
+
+swapoff -a
+
 # install helm client
 curl --silent https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
 

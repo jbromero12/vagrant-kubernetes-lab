@@ -22,15 +22,15 @@ cmd_opts = GetoptLong.new(
 )
 
 options = {
-  #:kubernetes => "1.9.1",
-  :kubernetes => "latest",
+  #:kubernetes => "latest",
+  :kubernetes => "1.15.6",
   :pod_network_cidr => "10.244.0.0/16",
   :kubeadm_token => "54c315.78a320e33baaf27d",
   :host_mount => nil,  
   :guest_mount => "/data",  
   :docker_username => nil,  
   :docker_password => nil,  
-  :network => "weave" # or "flannel"
+  :network => "flannel" # or "flannel" weave
 }
 
 cmd_opts.each do |opt, arg|
@@ -53,20 +53,26 @@ boxes = [
         :name => "k8smaster",
         :eth1 => "192.168.8.10",
         :mem => "2048",
-        :cpu => "1",
+        :cpu => "2",
         :is_master => true
     },
     {
-        :name => "k8sworker",
+        :name => "k8sworker1",
         :eth1 => "192.168.8.11",
         :mem => "4096",
         :cpu => "2"
+    },
+    {
+       :name => "k8sworker2",
+       :eth1 => "192.168.8.12",
+       :mem => "2048",
+       :cpu => "2"
     }
 ]
 
 Vagrant.configure("2") do |config|
 
-  config.vm.box = "ubuntu/xenial64"
+  config.vm.box = "ubuntu/bionic64"
 
   # Validate the nodes
   masterCount = boxes.select { |box| box[:is_master] }.count 
@@ -109,6 +115,7 @@ Vagrant.configure("2") do |config|
           if [ "$KUBE_VERSION" != "latest" ]; then
             KUBEADM_VERSION="--kubernetes-version v$KUBE_VERSION"
           fi
+          ## kubeadm init --pod-network-cidr #{options[:pod_network_cidr]} --apiserver-advertise-address #{box[:eth1]} 
           kubeadm init --apiserver-advertise-address #{box[:eth1]} --pod-network-cidr #{options[:pod_network_cidr]} --token #{options[:kubeadm_token]} $KUBEADM_VERSION
           # Copy Kube config into our shared Vagrant folder
           cp -rf  /etc/kubernetes/admin.conf /vagrant/kubeconfig/      
@@ -120,7 +127,7 @@ Vagrant.configure("2") do |config|
         node.vm.provision "shell", inline: <<-SHELL
           set -e -x
           # Add a worker node to the cluster
-          kubeadm join --ignore-preflight-errors=all --discovery-token-unsafe-skip-ca-verification --token #{options[:kubeadm_token]} #{master[:eth1]}:6443 
+          kubeadm join  --discovery-token-unsafe-skip-ca-verification --token #{options[:kubeadm_token]} #{master[:eth1]}:6443 
         SHELL
       end
 
