@@ -112,3 +112,56 @@ Note that you might have to reload the page in your browser.
 ```
 bash scripts/open-weavescope.sh
 ```
+
+
+### Una vez instalado:
+
+Una vez instalado:
+
+- vagrant ssh k8smaster
+- vagrant ssh k8sworker1
+- vagrant ssh k8sworker2 
+
+y realizar los comandos, ya que vagrant no puede realizarlos:
+
+``` 
+sudo su
+
+cat > /etc/docker/daemon.json <<EOF
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2"
+}
+EOF
+
+mkdir -p /etc/systemd/system/docker.service.d
+
+# Restart docker.
+systemctl daemon-reload
+systemctl enable docker
+
+``` 
+
+### Para leer la configuración 
+
+ir al master y sacar la información del /etc/kubernetes/admin.conf
+
+y copiarla en local 
+
+una vez hecho eso:
+
+mergear con la información del kubeconf local:
+
+vi ~/.bashrc 
+
+export KUBECONFIG=~/.kube/config:~/admin.conf
+
+y 
+
+kubectl config view
+
+

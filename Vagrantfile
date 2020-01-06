@@ -119,6 +119,7 @@ Vagrant.configure("2") do |config|
           kubeadm init --apiserver-advertise-address #{box[:eth1]} --pod-network-cidr #{options[:pod_network_cidr]} --token #{options[:kubeadm_token]} $KUBEADM_VERSION
           # Copy Kube config into our shared Vagrant folder
           cp -rf  /etc/kubernetes/admin.conf /vagrant/kubeconfig/      
+          apt-get install -y nfs-common nfs-kernel-server
         SHELL
       else # it is a worker
         master = boxes.select { |box| box[:is_master] }.first
@@ -127,6 +128,7 @@ Vagrant.configure("2") do |config|
         node.vm.provision "shell", inline: <<-SHELL
           set -e -x
           # Add a worker node to the cluster
+          apt-get install -y nfs-common
           kubeadm join  --discovery-token-unsafe-skip-ca-verification --token #{options[:kubeadm_token]} #{master[:eth1]}:6443 
         SHELL
       end

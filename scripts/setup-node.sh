@@ -31,6 +31,7 @@ cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
 deb http://apt.kubernetes.io/ kubernetes-xenial main
 EOF
 apt-get update
+
 apt-get upgrade -y
 apt-get install -y docker.io
 apt-get install -y kubelet$KUBE_APT_VERSION
@@ -38,6 +39,8 @@ apt-get install -y kubeadm$KUBE_APT_VERSION
 apt-get install -y kubectl$KUBE_APT_VERSION 
 apt-get install -y kubernetes-cni
 apt-get install -y nfs-common
+
+systemctl start docker
 
 # Setup daemon.
 cat > /etc/docker/daemon.json <<EOF
@@ -56,7 +59,6 @@ mkdir -p /etc/systemd/system/docker.service.d
 # Restart docker.
 systemctl daemon-reload
 systemctl enable docker
-systemctl start docker
 
 ##swapoff
 
